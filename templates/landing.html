@@ -1,0 +1,51 @@
+{% extends "public_base.html" %}
+{% block title %}Plan. Manage. Execute.{% endblock %}
+{% block public_content %}
+<section class="hero text-center mt-n3">
+  <div class="container">
+    <h1>Plan. Manage. Execute.<br>Perfect Every Event.</h1>
+    <p class="lead mt-3 mx-auto" style="max-width:640px">
+      EventFlow helps colleges and organizations run events from start to finish: manage events,
+      track every task, handle registrations and see progress at a glance.
+    </p>
+    <div class="mt-4 d-flex gap-3 justify-content-center">
+      <a href="{% url 'register' %}" class="btn btn-light btn-lg text-primary-ef fw-semibold">Get Started</a>
+      <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Login</a>
+    </div>
+  </div>
+</section>
+
+<section class="container py-5">
+  <h2 class="text-center fw-bold mb-5">Everything you need to run great events</h2>
+  <div class="row g-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="card feature-card p-4">
+        <div class="feature-icon mb-3"><i class="bi bi-calendar-event"></i></div>
+        <h5>Event Management</h5>
+        <p class="text-muted mb-0">Create events, set capacity and deadlines, and manage statuses in one place.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card feature-card p-4">
+        <div class="feature-icon mb-3"><i class="bi bi-kanban"></i></div>
+        <h5>Task Tracking</h5>
+        <p class="text-muted mb-0">A Kanban board shows what is pending, in progress, completed, or overdue.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card feature-card p-4">
+        <div class="feature-icon mb-3"><i class="bi bi-people"></i></div>
+        <h5>Participant Management</h5>
+        <p class="text-muted mb-0">Online registration with unique IDs, capacity limits, and duplicate protection.</p>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+      <div class="card feature-card p-4">
+        <div class="feature-icon mb-3"><i class="bi bi-graph-up"></i></div>
+        <h5>Analytics</h5>
+        <p class="text-muted mb-0">Live charts and printable reports for events, tasks, and registrations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

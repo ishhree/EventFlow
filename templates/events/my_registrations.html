@@ -1,0 +1,120 @@
+{% extends "app_base.html" %}
+
+{% block content %}
+
+<div class="container-fluid px-0">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">My Registrations</h2>
+            <p class="text-muted mb-0">
+                View the events you have registered for.
+            </p>
+        </div>
+
+        <a href="{% url 'event_list' %}" class="btn btn-primary">
+            <i class="bi bi-calendar-event me-2"></i>
+            Explore Events
+        </a>
+    </div>
+
+    {% if registrations %}
+
+    <div class="row g-4">
+
+        {% for registration in registrations %}
+
+        <div class="col-12 col-md-6 col-xl-4">
+
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+
+                        <span class="badge bg-light text-dark border">
+                            Registration #{{ registration.pk }}
+                        </span>
+
+                        {% if registration.status == "registered" %}
+                        <span class="badge bg-success">
+                            Registered
+                        </span>
+                        {% elif registration.status == "cancelled" %}
+                        <span class="badge bg-secondary">
+                            Cancelled
+                        </span>
+                        {% else %}
+                        <span class="badge bg-light text-dark">
+                            {{ registration.get_status_display }}
+                        </span>
+                        {% endif %}
+
+                    </div>
+
+                    <h5 class="fw-bold mb-3">
+                        {{ registration.event.title }}
+                    </h5>
+
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-calendar3 me-2"></i>
+                        {{ registration.event.date|date:"M d, Y" }}
+                    </p>
+
+                    {% if registration.event.start_time %}
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-clock me-2"></i>
+                        {{ registration.event.start_time|time:"g:i A" }}
+                    </p>
+                    {% endif %}
+
+                    {% if registration.event.location %}
+                    <p class="text-muted mb-3">
+                        <i class="bi bi-geo-alt me-2"></i>
+                        {{ registration.event.location }}
+                    </p>
+                    {% endif %}
+
+                    <p class="small text-muted mb-3">
+                        Registered on
+                        {{ registration.registered_at|date:"M d, Y" }}
+                    </p>
+
+                    <a href="{% url 'event_detail' registration.event.pk %}" class="btn btn-outline-primary w-100">
+                        View Event
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+
+            <i class="bi bi-ticket-perforated display-4 text-muted"></i>
+
+            <h4 class="fw-bold mt-3">No registrations yet</h4>
+
+            <p class="text-muted mb-4">
+                You haven't registered for any events yet.
+                Explore the available events to get started.
+            </p>
+
+            <a href="{% url 'event_list' %}" class="btn btn-primary">
+                Browse Events
+            </a>
+
+        </div>
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

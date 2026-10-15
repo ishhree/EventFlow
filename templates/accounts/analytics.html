@@ -1,0 +1,136 @@
+```html
+{% extends "app_base.html" %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="mb-4">
+        <h2 class="fw-bold">Analytics & Reports</h2>
+        <p class="text-muted">
+            An overview of your events, registrations, and tasks.
+        </p>
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-calendar-event fs-3 text-primary"></i>
+                    <p class="text-muted mt-3 mb-1">Total Events</p>
+                    <h3 class="fw-bold">{{ total_events }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-people fs-3 text-success"></i>
+                    <p class="text-muted mt-3 mb-1">Registrations</p>
+                    <h3 class="fw-bold">{{ total_registrations }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-list-check fs-3 text-warning"></i>
+                    <p class="text-muted mt-3 mb-1">Total Tasks</p>
+                    <h3 class="fw-bold">{{ total_tasks }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <i class="bi bi-check-circle fs-3 text-success"></i>
+                    <p class="text-muted mt-3 mb-1">Task Completion</p>
+                    <h3 class="fw-bold">{{ completion_percentage }}%</h3>
+                    <div class="progress mt-2" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar"
+                            aria-valuenow="{{ completion_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Download Reports -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="fw-bold mb-3">
+            <i class="bi bi-download me-2"></i>
+            Download Reports
+        </h5>
+
+        <div class="d-flex flex-wrap gap-3">
+            <a href="{% url 'download_events_report' %}" class="btn btn-primary">
+                <i class="bi bi-calendar-event me-2"></i>
+                Download Events
+            </a>
+
+            <a href="{% url 'download_registrations_report' %}" class="btn btn-success">
+                <i class="bi bi-people me-2"></i>
+                Download Registrations
+            </a>
+
+            <a href="{% url 'download_tasks_report' %}" class="btn btn-warning">
+                <i class="bi bi-list-check me-2"></i>
+                Download Tasks
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+
+    <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">Event Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Upcoming / active events</span>
+                    <strong>{{ upcoming_events }}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Completed events</span>
+                    <strong>{{ completed_events }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Cancelled events</span>
+                    <strong>{{ cancelled_events }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0">Task Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Completed tasks</span>
+                    <strong>{{ completed_tasks }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Pending / in-progress tasks</span>
+                    <strong>{{ pending_tasks }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</div>
+{% endblock %}

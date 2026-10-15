@@ -1,0 +1,484 @@
+{% extends "app_base.html" %}
+
+{% block title %}{{ task.title }} | EventFlow{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+
+    <!-- Back -->
+    <div class="mb-4">
+
+        <a href="{% url 'task_list' %}" class="text-decoration-none">
+            ← Back to Tasks
+        </a>
+
+    </div>
+
+
+    <div class="row g-4">
+
+        <!-- ========================================== -->
+        <!-- MAIN TASK DETAILS -->
+        <!-- ========================================== -->
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    <!-- Header -->
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+
+                        <div>
+
+                            <div class="d-flex gap-2 mb-2">
+
+                                <span class="badge {{ task.priority_badge_class }}">
+                                    {{ task.get_priority_display }}
+                                </span>
+
+                                <span class="badge {{ task.status_badge_class }}">
+                                    {{ task.get_status_display }}
+                                </span>
+
+                            </div>
+
+                            <h1 class="fw-bold mb-2">
+                                {{ task.title }}
+                            </h1>
+
+                            <p class="text-muted mb-0">
+                                Task #{{ task.pk }}
+                            </p>
+
+                        </div>
+
+
+                        <!-- Actions -->
+                        <div class="d-flex gap-2 flex-wrap">
+
+                            {% if task.assigned_to_id == user.id %}
+
+                            <a href="{% url 'task_update_progress' task.pk %}" class="btn btn-primary">
+                                <i class="bi bi-arrow-up-circle me-1"></i>
+                                Update Progress
+                            </a>
+
+                            {% endif %}
+
+
+                            {% if user.profile.role == "admin" or user.profile.role == "event_manager" %}
+
+                            <a href="{% url 'task_edit' task.pk %}" class="btn btn-outline-primary">
+                                Edit
+                            </a>
+
+                            <a href="{% url 'task_delete' task.pk %}" class="btn btn-outline-danger">
+                                Delete
+                            </a>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ========================================== -->
+                    <!-- DESCRIPTION -->
+                    <!-- ========================================== -->
+
+                    <div class="mb-4">
+
+                        <h5 class="fw-bold">
+                            Description
+                        </h5>
+
+                        {% if task.description %}
+
+                        <p class="text-muted mb-0">
+                            {{ task.description|linebreaksbr }}
+                        </p>
+
+                        {% else %}
+
+                        <p class="text-muted fst-italic mb-0">
+                            No description provided.
+                        </p>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <hr class="my-4">
+
+
+                    <!-- ========================================== -->
+                    <!-- PROGRESS -->
+                    <!-- ========================================== -->
+
+                    <div class="mb-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+
+                            <h5 class="fw-bold mb-0">
+                                Progress
+                            </h5>
+
+                            <span class="fw-semibold">
+                                {{ task.progress|default:0 }}%
+                            </span>
+
+                        </div>
+
+                        <progress class="w-100" value="{{ task.progress|default:0 }}" max="100"></progress>
+
+                    </div>
+
+
+                    <hr class="my-4">
+
+
+                    <!-- ========================================== -->
+                    <!-- CHECKLIST -->
+                    <!-- ========================================== -->
+
+                    <div class="mb-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+
+                            <div>
+
+                                <h5 class="fw-bold mb-1">
+                                    Checklist
+                                </h5>
+
+                                <p class="text-muted small mb-0">
+                                    Break this task into smaller steps.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                         {% if checklist_has_items %}
+
+                        <div class="list-group mb-4">
+
+                              {% for item in checklist_items %}
+
+                            <div class="list-group-item border rounded mb-2">
+
+                                <div class="d-flex align-items-center justify-content-between gap-3">
+
+                                    <!-- Item -->
+                                    <div class="d-flex align-items-center gap-3">
+
+                                        {% if task.assigned_to_id == user.id %}
+
+                                        <form method="post" action="{% url 'checklist_toggle' item.pk %}" class="m-0">
+
+                                            {% csrf_token %}
+
+                                            <button type="submit"
+                                                class="btn btn-sm {% if item.completed %}btn-success{% else %}btn-outline-secondary{% endif %}"
+                                                title="Toggle completion">
+
+                                                {% if item.completed %}
+
+                                                <i class="bi bi-check-lg"></i>
+
+                                                {% else %}
+
+                                                <i class="bi bi-square"></i>
+
+                                                {% endif %}
+
+                                            </button>
+
+                                        </form>
+
+                                        {% else %}
+
+                                        <span class="text-secondary">
+
+                                            {% if item.completed %}
+
+                                            <i class="bi bi-check-circle-fill text-success fs-5"></i>
+
+                                            {% else %}
+
+                                            <i class="bi bi-circle fs-5"></i>
+
+                                            {% endif %}
+
+                                        </span>
+
+                                        {% endif %}
+
+
+                                        <span
+                                            class="{% if item.completed %}text-decoration-line-through text-muted{% else %}fw-medium{% endif %}">
+                                            {{ item.title }}
+                                        </span>
+
+                                    </div>
+
+
+                                    <!-- Delete -->
+                                    {% if user.profile.role == "admin" or user.profile.role == "event_manager" %}
+
+                                    <form method="post" action="{% url 'checklist_delete' item.pk %}" class="m-0">
+
+                                        {% csrf_token %}
+
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            title="Delete checklist item">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+
+                                    </form>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                        {% else %}
+
+                        <div class="border rounded p-4 text-center text-muted mb-4">
+
+                            <i class="bi bi-list-check fs-2 d-block mb-2"></i>
+
+                            <p class="mb-0">
+                                No checklist items yet.
+                            </p>
+
+                        </div>
+
+                        {% endif %}
+
+
+                        <!-- Add Checklist Item -->
+                        {% if user.profile.role == "admin" or user.profile.role == "event_manager" %}
+
+                        <div class="card bg-light border-0">
+
+                            <div class="card-body">
+
+                                <h6 class="fw-bold mb-3">
+                                    Add Checklist Item
+                                </h6>
+
+                                <form method="post" action="{% url 'checklist_add' task.pk %}">
+
+                                    {% csrf_token %}
+
+                                    <div class="input-group">
+
+                                        {{ checklist_form.title }}
+
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-plus-lg me-1"></i>
+                                            Add Item
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <hr class="my-4">
+
+
+                    <!-- ========================================== -->
+                    <!-- EVENT -->
+                    <!-- ========================================== -->
+
+                    <div>
+
+                        <h5 class="fw-bold">
+                            Event
+                        </h5>
+
+                        <a href="{% url 'event_detail' task.event.pk %}" class="text-decoration-none">
+                            {{ task.event.name }}
+                        </a>
+
+                        <div class="small text-muted mt-1">
+
+                            {{ task.event.date|date:"d M Y" }}
+
+                            {% if task.event.venue %}
+                            · {{ task.event.venue }}
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- TASK INFORMATION -->
+        <!-- ========================================== -->
+
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-4">
+                        Task Information
+                    </h5>
+
+
+                    <!-- Assigned To -->
+                    <div class="mb-4">
+
+                        <div class="small text-muted mb-1">
+                            Assigned To
+                        </div>
+
+                        <div class="fw-semibold">
+
+                            {% if task.assigned_to %}
+
+                            {{ task.assignee_name }}
+
+                            {% else %}
+
+                            <span class="text-muted">
+                                Unassigned
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Due Date -->
+                    <div class="mb-4">
+
+                        <div class="small text-muted mb-1">
+                            Due Date
+                        </div>
+
+                        <div class="fw-semibold">
+
+                            {% if task.due_date %}
+
+                            {{ task.due_date|date:"d M Y" }}
+
+                            {% else %}
+
+                            <span class="text-muted">
+                                No deadline
+                            </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Priority -->
+                    <div class="mb-4">
+
+                        <div class="small text-muted mb-1">
+                            Priority
+                        </div>
+
+                        <div>
+
+                            <span class="badge {{ task.priority_badge_class }}">
+                                {{ task.get_priority_display }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Status -->
+                    <div class="mb-4">
+
+                        <div class="small text-muted mb-1">
+                            Status
+                        </div>
+
+                        <div>
+
+                            <span class="badge {{ task.status_badge_class }}">
+                                {{ task.get_status_display }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Created -->
+                    <div class="mb-4">
+
+                        <div class="small text-muted mb-1">
+                            Created
+                        </div>
+
+                        <div class="fw-semibold">
+                            {{ task.created_at|date:"d M Y, h:i A" }}
+                        </div>
+
+                    </div>
+
+
+                    <!-- Updated -->
+                    <div>
+
+                        <div class="small text-muted mb-1">
+                            Last Updated
+                        </div>
+
+                        <div class="fw-semibold">
+                            {{ task.updated_at|date:"d M Y, h:i A" }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

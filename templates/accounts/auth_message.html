@@ -1,0 +1,7 @@
+{% extends "accounts/auth_card.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block card %}
+<h3 class="fw-bold mb-3">{{ title }}</h3>
+<p class="text-muted">{{ message }}</p>
+<a href="{% url 'login' %}" class="btn btn-primary w-100">Go to login</a>
+{% endblock %}

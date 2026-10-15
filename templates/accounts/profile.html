@@ -1,0 +1,37 @@
+{% extends "app_base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<h3 class="fw-bold mb-4">My Profile</h3>
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card p-4 text-center">
+            <div class="avatar avatar-lg mx-auto mb-3">{{ user.first_name|slice:":1"|upper|default:"U" }}</div>
+            <h5 class="mb-0">{{ user.get_full_name|default:user.username }}</h5>
+            <span class="badge bg-primary mx-auto mt-2">{{ user.profile.get_role_display }}</span>
+            <hr>
+            <ul class="list-unstyled text-start mb-0">
+                <li class="mb-2"><i class="bi bi-envelope me-2 text-muted"></i>{{ user.email }}</li>
+                <li class="mb-2"><i class="bi bi-telephone me-2 text-muted"></i>{{ user.profile.phone|default:"-" }}
+                </li>
+                <li><i class="bi bi-calendar-check me-2 text-muted"></i>Joined {{ user.date_joined|date:"d M Y" }}</li>
+            </ul>
+        </div>
+        <div class="card p-4 mt-4">
+            <h6>Registered Events</h6>
+            <p class="text-muted small mb-0">Your registered events will appear here once registration is built (Phase
+                4).</p>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card p-4">
+            <h5 class="mb-3">Edit Profile</h5>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% for field in form %}{% include "partials/form_field.html" %}{% endfor %}
+                <p class="small text-muted">Email cannot be changed because it is your login ID.</p>
+                <button class="btn btn-primary">Save changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

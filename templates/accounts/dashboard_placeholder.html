@@ -1,0 +1,238 @@
+{% extends "app_base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">
+            Welcome, {{ user.first_name|default:user.username }} 👋
+        </h3>
+        <p class="text-muted mb-0">
+            Here's what's happening with your events.
+        </p>
+    </div>
+
+    {% if user.profile.role == "admin" or user.profile.role == "event_manager" %}
+        <a href="{% url 'event_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            Create Event
+        </a>
+    {% endif %}
+</div>
+
+
+<!-- Statistics -->
+<div class="row g-3 mb-4">
+
+    <!-- Total Events -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Total Events</p>
+                        <h2 class="fw-bold mb-0">{{ total_events }}</h2>
+                    </div>
+                    <div class="fs-1 text-primary">
+                        <i class="bi bi-calendar-event"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Upcoming</p>
+                        <h2 class="fw-bold mb-0">{{ upcoming_count }}</h2>
+                    </div>
+                    <div class="fs-1 text-success">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Completed</p>
+                        <h2 class="fw-bold mb-0">{{ completed_count }}</h2>
+                    </div>
+                    <div class="fs-1 text-secondary">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancelled -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-1">Cancelled</p>
+                        <h2 class="fw-bold mb-0">{{ cancelled_count }}</h2>
+                    </div>
+                    <div class="fs-1 text-danger">
+                        <i class="bi bi-x-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- Upcoming Events -->
+<div class="card border-0 shadow-sm">
+
+    <div class="card-header bg-white border-0 pt-4 px-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="fw-bold mb-1">Upcoming Events</h5>
+                <p class="text-muted small mb-0">
+                    Your next scheduled events
+                </p>
+            </div>
+
+            <a href="{% url 'event_list' %}" class="btn btn-outline-primary btn-sm">
+                View All
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body px-4">
+
+        {% if upcoming_events %}
+
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Venue</th>
+                            <th>Status</th>
+                            <th>Seats</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for event in upcoming_events %}
+
+                            <tr>
+
+                                <!-- Event name -->
+                                <td>
+                                    <div class="fw-semibold">
+                                        {{ event.name }}
+                                    </div>
+
+                                    <small class="text-muted">
+                                        Created by {{ event.creator_name }}
+                                    </small>
+                                </td>
+
+                                <!-- Date -->
+                                <td>
+                                    <div class="fw-semibold">
+                                        {{ event.date|date:"d M Y" }}
+                                    </div>
+
+                                    <small class="text-muted">
+                                        {{ event.start_time|time:"g:i A" }}
+                                        -
+                                        {{ event.end_time|time:"g:i A" }}
+                                    </small>
+                                </td>
+
+                                <!-- Venue -->
+                                <td>
+                                    <i class="bi bi-geo-alt me-1"></i>
+                                    {{ event.venue }}
+                                </td>
+
+                                <!-- Status -->
+                                <td>
+                                    <span class="badge {{ event.badge_class }}">
+                                        {{ event.get_status_display }}
+                                    </span>
+                                </td>
+
+                                <!-- Seats -->
+                                <td>
+                                    <span class="fw-semibold">
+                                        {{ event.available_seats }}
+                                    </span>
+                                    <small class="text-muted">
+                                        / {{ event.capacity }}
+                                    </small>
+                                </td>
+
+                                <!-- Details -->
+                                <td class="text-end">
+                                    <a
+                                        href="{% url 'event_detail' event.pk %}"
+                                        class="btn btn-sm btn-outline-secondary"
+                                    >
+                                        View
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        {% else %}
+
+            <!-- Empty state -->
+            <div class="text-center py-5">
+
+                <div class="fs-1 text-muted mb-3">
+                    <i class="bi bi-calendar-x"></i>
+                </div>
+
+                <h5 class="fw-bold">No upcoming events</h5>
+
+                <p class="text-muted">
+                    There are currently no upcoming events.
+                </p>
+
+                {% if user.profile.role == "admin" or user.profile.role == "event_manager" %}
+                    <a href="{% url 'event_create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i>
+                        Create Your First Event
+                    </a>
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

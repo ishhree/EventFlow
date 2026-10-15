@@ -1,0 +1,172 @@
+{% extends "app_base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <a
+                    href="{% url 'task_detail' task.pk %}"
+                    class="text-decoration-none text-secondary"
+                >
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Task
+                </a>
+            </div>
+
+            <h2 class="fw-bold mb-1">
+                Update Task Progress
+            </h2>
+
+            <p class="text-muted mb-0">
+                Update the status and progress of your assigned task.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- Task Information -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+                <div>
+                    <h4 class="fw-bold mb-2">
+                        {{ task.title }}
+                    </h4>
+
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-calendar-event me-1"></i>
+                        {{ task.event.name }}
+                    </p>
+                </div>
+
+                <div>
+                    <span class="badge {{ task.priority_badge_class }}">
+                        {{ task.get_priority_display }}
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Update Form -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h5 class="fw-bold mb-1">
+                Task Progress
+            </h5>
+
+            <p class="text-muted small mb-0">
+                Tell us how your task is progressing.
+            </p>
+        </div>
+
+        <div class="card-body p-4">
+
+            <form method="post">
+
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+
+                <!-- Status -->
+                <div class="mb-4">
+
+                    <label
+                        for="{{ form.status.id_for_label }}"
+                        class="form-label fw-semibold"
+                    >
+                        {{ form.status.label }}
+                    </label>
+
+                    {{ form.status }}
+
+                    {% if form.status.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.status.errors }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+
+                <!-- Progress -->
+                <div class="mb-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+
+                        <label
+                            for="{{ form.progress.id_for_label }}"
+                            class="form-label fw-semibold mb-0"
+                        >
+                            {{ form.progress.label }}
+                        </label>
+
+                        <span class="text-muted small">
+                            Current: {{ task.progress }}%
+                        </span>
+
+                    </div>
+
+                    {{ form.progress }}
+
+                    <div class="form-text">
+                        Enter a value between 0 and 100.
+                    </div>
+
+                    {% if form.progress.errors %}
+                        <div class="text-danger small mt-1">
+                            {{ form.progress.errors }}
+                        </div>
+                    {% endif %}
+
+                </div>
+
+
+                <!-- Buttons -->
+                <div class="d-flex gap-2">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-check2-circle me-1"></i>
+                        Update Progress
+                    </button>
+
+                    <a
+                        href="{% url 'task_detail' task.pk %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Cancel
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,93 @@
+{% with name=request.resolver_match.url_name %}
+
+<aside class="sidebar" id="sidebar">
+
+    <a class="brand" href="{% url 'dashboard' %}">
+        <i class="bi bi-calendar2-check"></i>
+        EventFlow
+    </a>
+
+    <nav class="nav flex-column">
+
+        <!-- Dashboard -->
+        <a class="nav-link {% if name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+            <i class="bi bi-speedometer2"></i>
+            Dashboard
+        </a>
+
+        <!-- Events -->
+        <a class="nav-link {% if name == 'event_list' %}active{% endif %}" href="{% url 'event_list' %}">
+            <i class="bi bi-calendar-event"></i>
+            Events
+        </a>
+
+        <!-- Tasks -->
+        <a class="nav-link {% if name == 'task_list' or name == 'my_tasks' or name == 'task_detail' or name == 'task_create' or name == 'task_edit' %}active{% endif %}"
+            href="{% url 'task_list' %}">
+            <i class="bi bi-check2-square"></i>
+            Tasks
+        </a>
+
+        <!-- Registrations -->
+
+        <a class="nav-link {% if name == 'my_registrations' %}active{% endif %}" href="{% url 'my_registrations' %}">
+            <i class="bi bi-ticket-perforated"></i>
+            My Registrations
+        </a>
+
+        <!-- Participants -->
+        {% if user.profile.can_manage %}
+        <a class="nav-link {% if name == 'event_participants' %}active{% endif %}" href="#">
+            <i class="bi bi-people"></i>
+            Participants
+        </a>
+        {% endif %}
+
+        <!-- Calendar -->
+        <a class="nav-link {% if name == 'event_calendar' %}active{% endif %}" href="{% url 'event_calendar' %}">
+            <i class="bi bi-calendar3"></i>
+            Calendar
+        </a>
+
+        <!-- Notifications -->
+        <a class="nav-link {% if name == 'notifications' %}active{% endif %}" href="{% url 'notifications' %}">
+            <i class="bi bi-bell"></i>
+            Notifications
+        </a>
+
+        
+<!-- Analytics & Reports -->
+<a class="nav-link {% if name == 'analytics' %}active{% endif %}"
+   href="{% url 'analytics' %}">
+    <i class="bi bi-bar-chart-line"></i>
+    Analytics &amp; Reports
+</a>
+
+        <!-- Reports -->
+        {% if user.profile.can_manage %}
+        <a class="nav-link {% if name == 'reports' %}active{% endif %}" href="#">
+            <i class="bi bi-bar-chart-line"></i>
+            Reports
+        </a>
+        {% endif %}
+
+        <!-- Profile -->
+        <a class="nav-link {% if name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
+            <i class="bi bi-person-circle"></i>
+            Profile
+        </a>
+
+        <!-- Logout -->
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="nav-link w-100 bg-transparent border-0 text-start">
+                <i class="bi bi-box-arrow-left"></i>
+                Logout
+            </button>
+        </form>
+
+    </nav>
+
+</aside>
+
+{% endwith %}

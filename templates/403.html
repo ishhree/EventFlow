@@ -1,0 +1,9 @@
+{% extends "public_base.html" %}
+{% block title %}Access denied{% endblock %}
+{% block public_content %}
+<div class="container text-center py-5">
+  <h1 class="display-1 fw-bold text-primary-ef">403</h1>
+  <p class="lead">You don't have permission to view this page.</p>
+  <a href="{% url 'landing' %}" class="btn btn-primary">Back to home</a>
+</div>
+{% endblock %}

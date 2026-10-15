@@ -1,0 +1,363 @@
+{% extends "app_base.html" %}
+
+{% block title %}Tasks | EventFlow{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                Tasks
+            </h2>
+
+            <p class="text-muted mb-0">
+                Manage and track tasks across your events.
+            </p>
+        </div>
+
+        {% if user.profile.role == "admin" or user.profile.role == "event_manager" %}
+
+        <a href="{% url 'task_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>
+            Create Task
+        </a>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <form method="get">
+
+                <div class="row g-3">
+
+                    <!-- Search -->
+                    <div class="col-12 col-md-6 col-lg-3">
+
+                        <label for="search" class="form-label fw-semibold">
+                            Search
+                        </label>
+
+                        <input
+                            type="text"
+                            id="search"
+                            name="q"
+                            value="{{ search_query }}"
+                            class="form-control"
+                            placeholder="Search tasks..."
+                        >
+
+                    </div>
+
+
+                    <!-- Event -->
+                    <div class="col-12 col-md-6 col-lg-3">
+
+                        <label for="eventFilter" class="form-label fw-semibold">
+                            Event
+                        </label>
+
+                        <select
+                            id="eventFilter"
+                            name="event"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                All Events
+                            </option>
+
+                            {% for event in events %}
+
+                            <option
+                                value="{{ event.id }}"
+                                {% if event_id == event.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ event.name }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Status -->
+                    <div class="col-12 col-md-6 col-lg-3">
+
+                        <label for="statusFilter" class="form-label fw-semibold">
+                            Status
+                        </label>
+
+                        <select
+                            id="statusFilter"
+                            name="status"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                All Statuses
+                            </option>
+
+                            {% for value, label in status_choices %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if status_filter == value %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ label }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Priority -->
+                    <div class="col-12 col-md-6 col-lg-3">
+
+                        <label for="priorityFilter" class="form-label fw-semibold">
+                            Priority
+                        </label>
+
+                        <select
+                            id="priorityFilter"
+                            name="priority"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                All Priorities
+                            </option>
+
+                            {% for value, label in priority_choices %}
+
+                            <option
+                                value="{{ value }}"
+                                {% if priority_filter == value %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ label }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Filter Buttons -->
+                <div class="d-flex gap-2 mt-3">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-funnel me-1"></i>
+                        Filter
+                    </button>
+
+                    <a
+                        href="{% url 'task_list' %}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Clear
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- Task List -->
+    {% if tasks %}
+
+    <div class="row g-4">
+
+        {% for task in tasks %}
+
+        <div class="col-12 col-md-6 col-xl-4">
+
+            <div class="card h-100 border-0 shadow-sm">
+
+                <div class="card-body d-flex flex-column">
+
+                    <!-- Title + Priority -->
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+
+                        <h5 class="fw-bold mb-0">
+
+                            <a
+                                href="{% url 'task_detail' task.pk %}"
+                                class="text-decoration-none text-dark"
+                            >
+                                {{ task.title }}
+                            </a>
+
+                        </h5>
+
+                        <span class="badge {{ task.priority_badge_class }}">
+                            {{ task.get_priority_display }}
+                        </span>
+
+                    </div>
+
+
+                    <!-- Event -->
+                    <p class="small text-muted mb-2">
+
+                        <strong>Event:</strong>
+                        {{ task.event.name }}
+
+                    </p>
+
+
+                    <!-- Assigned User -->
+                    <p class="small text-muted mb-3">
+
+                        <strong>Assigned To:</strong>
+                        {{ task.assignee_name }}
+
+                    </p>
+
+
+                    <!-- Status -->
+                    <div class="mb-3">
+
+                        <span class="badge {{ task.status_badge_class }}">
+                            {{ task.get_status_display }}
+                        </span>
+
+                    </div>
+
+
+                    <!-- Progress -->
+                    <div class="mb-3">
+
+                        <div class="d-flex justify-content-between small mb-1">
+
+                            <span class="fw-semibold">
+                                Progress
+                            </span>
+
+                            <span>
+                                {{ task.progress|default:0 }}%
+                            </span>
+
+                        </div>
+
+                        <progress
+                            class="w-100"
+                            value="{{ task.progress|default:0 }}"
+                            max="100"
+                        ></progress>
+
+                    </div>
+
+
+                    <!-- Due Date -->
+                    <div class="small text-muted mb-3">
+
+                        {% if task.due_date %}
+
+                        <strong>Due:</strong>
+                        {{ task.due_date|date:"d M Y" }}
+
+                        {% else %}
+
+                        <strong>Due:</strong>
+                        No deadline
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Actions -->
+                    <div class="mt-auto d-grid gap-2">
+
+                        <a
+                            href="{% url 'task_detail' task.pk %}"
+                            class="btn btn-outline-primary btn-sm"
+                        >
+                            <i class="bi bi-eye me-1"></i>
+                            View Task
+                        </a>
+
+
+                        {% if task.assigned_to_id == user.id %}
+
+                        <a
+                            href="{% url 'task_update_progress' task.pk %}"
+                            class="btn btn-primary btn-sm"
+                        >
+                            <i class="bi bi-arrow-up-circle me-1"></i>
+                            Update Progress
+                        </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <!-- Empty State -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body text-center py-5">
+
+            <div class="display-5 mb-3">
+                ✓
+            </div>
+
+            <h3 class="fw-bold">
+                No Tasks Found
+            </h3>
+
+            <p class="text-muted mb-0">
+                There are no tasks matching your current filters.
+            </p>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

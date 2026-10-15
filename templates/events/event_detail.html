@@ -1,0 +1,358 @@
+{% extends "app_base.html" %}
+
+{% block title %}{{ event.name }} - EventFlow{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- Back to Events -->
+    <div class="mb-3">
+        <a href="{% url 'event_list' %}" class="text-decoration-none">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Events
+        </a>
+    </div>
+
+    <!-- Event Header -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+
+                <div>
+                    <div class="mb-2">
+                        <span class="badge {{ event.badge_class }}">
+                            {{ event.get_status_display }}
+                        </span>
+                    </div>
+
+                    <h2 class="fw-bold mb-2">{{ event.name }}</h2>
+
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-geo-alt me-1"></i>
+                        {{ event.venue }}
+                    </p>
+                </div>
+
+                <!-- Admin / Event Manager Actions -->
+                {% if user.is_authenticated %}
+                {% if user.profile.role == "admin" or user.profile.role == "event_manager" %}
+                <div class="d-flex flex-wrap gap-2">
+
+                    <a href="{% url 'event_participants' event.pk %}" class="btn btn-outline-success">
+                        <i class="bi bi-people me-1"></i>
+                        View Participants
+                    </a>
+
+                    <a href="{% url 'event_edit' event.pk %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>
+                        Edit
+                    </a>
+
+                    <a href="{% url 'event_delete' event.pk %}" class="btn btn-outline-danger">
+                        <i class="bi bi-trash me-1"></i>
+                        Delete
+                    </a>
+
+                </div>
+                {% endif %}
+                {% endif %}
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Event Information -->
+        <div class="col-lg-8">
+
+            <!-- About Event -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3">About this event</h5>
+
+                    {% if event.description %}
+                    <p class="text-muted mb-0">
+                        {{ event.description }}
+                    </p>
+                    {% else %}
+                    <p class="text-muted mb-0">
+                        No description has been provided for this event.
+                    </p>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <!-- Event Details -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-4">Event Details</h5>
+
+                    <div class="row g-4">
+
+                        <!-- Date -->
+                        <div class="col-md-6">
+                            <div class="d-flex gap-3">
+                                <div class="text-primary fs-4">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+
+                                <div>
+                                    <small class="text-muted">Date</small>
+                                    <div class="fw-semibold">
+                                        {{ event.date|date:"d M Y" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Time -->
+                        <div class="col-md-6">
+                            <div class="d-flex gap-3">
+                                <div class="text-primary fs-4">
+                                    <i class="bi bi-clock"></i>
+                                </div>
+
+                                <div>
+                                    <small class="text-muted">Time</small>
+                                    <div class="fw-semibold">
+                                        {{ event.start_time|time:"h:i A" }}
+                                        -
+                                        {{ event.end_time|time:"h:i A" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Venue -->
+                        <div class="col-md-6">
+                            <div class="d-flex gap-3">
+                                <div class="text-primary fs-4">
+                                    <i class="bi bi-geo-alt"></i>
+                                </div>
+
+                                <div>
+                                    <small class="text-muted">Venue</small>
+                                    <div class="fw-semibold">
+                                        {{ event.venue }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Capacity -->
+                        <div class="col-md-6">
+                            <div class="d-flex gap-3">
+                                <div class="text-primary fs-4">
+                                    <i class="bi bi-people"></i>
+                                </div>
+
+                                <div>
+                                    <small class="text-muted">Capacity</small>
+                                    <div class="fw-semibold">
+                                        {{ event.capacity }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Registration Panel -->
+        <div class="col-lg-4">
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3">Registration</h5>
+
+                    <!-- Available Seats -->
+                    <div class="mb-4">
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Available seats</span>
+
+                            <strong>
+                                {{ event.available_seats }} / {{ event.capacity }}
+                            </strong>
+                        </div>
+
+                        {% widthratio event.registered_count event.capacity 100 as registration_percentage %}
+
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar" role="progressbar" aria-label="Event registration progress"
+                                aria-valuenow="{{ registration_percentage }}" aria-valuemin="0" aria-valuemax="100"
+                                data-progress="{{ registration_percentage }}">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Participant Registration -->
+                    {% if user.is_authenticated %}
+
+                    {% if user.profile.role == "participant" %}
+
+                    {% if user_registration %}
+
+                    {% if user_registration.status == "registered" %}
+
+                    <div class="alert alert-success">
+                        <div class="fw-semibold mb-1">
+                            <i class="bi bi-check-circle me-1"></i>
+                            You are registered!
+                        </div>
+
+                        <small>
+                            You have successfully registered for this event.
+                        </small>
+                    </div>
+
+                    <form method="post" action="{% url 'event_cancel_registration' event.pk %}">
+                        {% csrf_token %}
+
+                        <button type="submit" class="btn btn-outline-danger w-100"
+                            onclick="return confirm('Are you sure you want to cancel your registration?');">
+
+                            <i class="bi bi-x-circle me-1"></i>
+                            Cancel Registration
+
+                        </button>
+                    </form>
+
+                    {% elif event.registration_open %}
+
+                    <form method="post" action="{% url 'event_register' event.pk %}">
+                        {% csrf_token %}
+
+                        <button type="submit" class="btn btn-primary w-100">
+
+                            <i class="bi bi-person-plus me-1"></i>
+                            Register for Event
+
+                        </button>
+                    </form>
+
+                    {% elif event.is_full %}
+
+                    <button type="button" class="btn btn-secondary w-100" disabled>
+                        <i class="bi bi-people me-1"></i>
+                        Event Full
+                    </button>
+
+                    {% else %}
+
+                    <button type="button" class="btn btn-secondary w-100" disabled>
+                        Registration Closed
+                    </button>
+
+                    {% endif %}
+
+                    {% elif event.registration_open %}
+
+                    <form method="post" action="{% url 'event_register' event.pk %}">
+                        {% csrf_token %}
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-person-plus me-1"></i>
+                            Register for Event
+                        </button>
+                    </form>
+
+                    {% elif event.is_full %}
+
+                    <button type="button" class="btn btn-secondary w-100" disabled>
+                        <i class="bi bi-people me-1"></i>
+                        Event Full
+                    </button>
+
+                    {% else %}
+
+                    <button type="button" class="btn btn-secondary w-100" disabled>
+                        Registration Closed
+                    </button>
+
+                    {% endif %}
+
+                    {% else %}
+
+                    <div class="alert alert-light border mb-0">
+                        <small class="text-muted">
+                            Only participants can register for events.
+                        </small>
+                    </div>
+
+                    {% endif %}
+
+                    {% else %}
+
+                    <div class="alert alert-light border">
+                        <small class="text-muted">
+                            Please log in as a participant to register.
+                        </small>
+
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-sm w-100 mt-2">
+                            Log In
+                        </a>
+                    </div>
+
+                    {% endif %}
+
+                    <!-- Registration Deadline -->
+                    {% if event.registration_deadline %}
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">
+                            <i class="bi bi-hourglass-split me-1"></i>
+                            Registration deadline:
+                            {{ event.registration_deadline|date:"d M Y, h:i A" }}
+                        </small>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <!-- Event Creator -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body p-4">
+
+                    <small class="text-muted">Created by</small>
+
+                    <div class="fw-semibold mt-1">
+                        {{ event.creator_name }}
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Registration Progress Bar -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("[data-progress]").forEach(function (bar) {
+            const progress = Number(bar.dataset.progress) || 0;
+            const safeProgress = Math.min(100, Math.max(0, progress));
+
+            bar.style.width = safeProgress + "%";
+            bar.setAttribute("aria-valuenow", safeProgress);
+        });
+    });
+</script>
+
+{% endblock %}

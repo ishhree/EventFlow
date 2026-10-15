@@ -1,0 +1,256 @@
+{% extends "app_base.html" %}
+
+{% block title %}Events{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Events</h3>
+        <p class="text-muted mb-0">
+            Browse and manage all events.
+        </p>
+    </div>
+
+    {% if user.profile.role == "admin" or user.profile.role == "event_manager" %}
+        <a href="{% url 'event_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            Create Event
+        </a>
+    {% endif %}
+</div>
+
+
+<!-- Search & Filter -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+
+        <form method="get">
+            <div class="row g-3 align-items-end">
+
+                <!-- Search -->
+                <div class="col-md-5">
+                    <label class="form-label fw-semibold">Search</label>
+                    <input
+                        type="text"
+                        name="q"
+                        value="{{ q }}"
+                        class="form-control"
+                        placeholder="Search event name, venue..."
+                    >
+                </div>
+
+                <!-- Status -->
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All statuses</option>
+
+                        {% for value, label in status_choices %}
+                            <option
+                                value="{{ value }}"
+                                {% if status == value %}selected{% endif %}
+                            >
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Sort -->
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Sort by</label>
+                    <select name="sort" class="form-select">
+                        {% for value, label in sort_choices %}
+                            <option
+                                value="{{ value }}"
+                                {% if sort == value %}selected{% endif %}
+                            >
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Button -->
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+</div>
+
+
+<!-- Events -->
+<div class="card border-0 shadow-sm">
+
+    <div class="card-header bg-white border-0 pt-4 px-4">
+        <h5 class="fw-bold mb-0">
+            All Events
+        </h5>
+    </div>
+
+    <div class="card-body px-4">
+
+        {% if events %}
+
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Venue</th>
+                            <th>Status</th>
+                            <th>Capacity</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for event in events %}
+
+                            <tr>
+
+                                <!-- Event -->
+                                <td>
+                                    <div class="fw-semibold">
+                                        {{ event.name }}
+                                    </div>
+
+                                    <small class="text-muted">
+                                        Created by {{ event.creator_name }}
+                                    </small>
+                                </td>
+
+
+                                <!-- Date -->
+                                <td>
+                                    <div>
+                                        {{ event.date|date:"d M Y" }}
+                                    </div>
+
+                                    <small class="text-muted">
+                                        {{ event.start_time|time:"g:i A" }}
+                                    </small>
+                                </td>
+
+
+                                <!-- Venue -->
+                                <td>
+                                    <i class="bi bi-geo-alt me-1"></i>
+                                    {{ event.venue }}
+                                </td>
+
+
+                                <!-- Status -->
+                                <td>
+                                    <span class="badge {{ event.badge_class }}">
+                                        {{ event.get_status_display }}
+                                    </span>
+                                </td>
+
+
+                                <!-- Capacity -->
+                                <td>
+                                    <strong>{{ event.available_seats }}</strong>
+                                    <span class="text-muted">
+                                        / {{ event.capacity }}
+                                    </span>
+                                </td>
+
+
+                                <!-- Action -->
+                                <td class="text-end">
+
+                                    <a
+                                        href="{% url 'event_detail' event.pk %}"
+                                        class="btn btn-sm btn-outline-primary"
+                                    >
+                                        View
+                                    </a>
+
+                                    {% if user.profile.role == "admin" or user.profile.role == "event_manager" %}
+
+                                        <a
+                                            href="{% url 'event_edit' event.pk %}"
+                                            class="btn btn-sm btn-outline-secondary"
+                                        >
+                                            Edit
+                                        </a>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <!-- Empty state -->
+
+            <div class="text-center py-5">
+
+                <div class="fs-1 text-muted mb-3">
+                    <i class="bi bi-calendar-x"></i>
+                </div>
+
+                {% if has_filters %}
+
+                    <h5 class="fw-bold">No matching events</h5>
+
+                    <p class="text-muted">
+                        Try changing your search or filters.
+                    </p>
+
+                    <a
+                        href="{% url 'event_list' %}"
+                        class="btn btn-outline-primary"
+                    >
+                        Clear Filters
+                    </a>
+
+                {% else %}
+
+                    <h5 class="fw-bold">No events yet</h5>
+
+                    <p class="text-muted">
+                        There are no events in the system yet.
+                    </p>
+
+                    {% if user.profile.role == "admin" or user.profile.role == "event_manager" %}
+                        <a
+                            href="{% url 'event_create' %}"
+                            class="btn btn-primary"
+                        >
+                            <i class="bi bi-plus-lg"></i>
+                            Create Event
+                        </a>
+                    {% endif %}
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}
