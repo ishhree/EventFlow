@@ -1,4 +1,5 @@
 import os
+import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -9,8 +10,13 @@ load_dotenv(BASE_DIR / ".env")
 
 # DEVELOPMENT ONLY - change before any real deployment
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
-DEBUG =os.getenv("DJANGO_DEBUG", "False").lower() == "true"
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
+
+ALLOWED_HOSTS = os.getenv(
+    "DJANGO_ALLOWED_HOSTS",
+    "localhost,127.0.0.1"
+).split(",")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -24,6 +30,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -53,10 +60,11 @@ WSGI_APPLICATION = "event_management.wsgi.application"
 
 # SQLite by default. For MySQL/PostgreSQL later, only change this block.
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        ssl_require=not DEBUG,
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -71,8 +79,21 @@ TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
 USE_TZ = True
 
+
 STATIC_URL = "static/"
+
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
